@@ -1,21 +1,14 @@
 import json
 from core.player import Player
+from core.enums import PlayerClass
+from core.data_loader import DataLoader
 
-def load_classes():
-    """
-    Load all playable classes from the JSON file.
-    """
-
-    with open("data/classes.json", "r") as file:
-        return json.load(file)
-
+classes = DataLoader.load_json("data/classes.json")
 
 def create_character():
     """
     Creates and returns a new Player object.
     """
-
-    classes = load_classes()
 
     print("\n========== CHARACTER CREATION ==========\n")
 
@@ -35,32 +28,27 @@ def create_character():
     print("3. Archer")
     print("4. Assassin")
 
-    class_choices = {
-        "1": "Warrior",
-        "2": "Mage",
-        "3": "Archer",
-        "4": "Assassin"
-    }
+    CLASS_OPTIONS = {
+    "1": PlayerClass.WARRIOR,
+    "2": PlayerClass.MAGE,
+    "3": PlayerClass.ARCHER,
+    "4": PlayerClass.ASSASSIN
+}
 
     while True:
 
         choice = input("\nEnter choice (1-4): ")
 
-        if choice in class_choices:
+        selected_class = CLASS_OPTIONS[choice]
 
-            selected_class = class_choices[choice]
-            break
+        stats = classes[selected_class.value]
 
-        print("Invalid choice!")
-
-    stats = classes[selected_class]
-
-    player = Player(
+        player = Player(
         player_name,
         selected_class,
         stats
     )
 
-    print("\nCharacter Created Successfully!")
+        print("\nCharacter Created Successfully!")
 
-    return player
+        return player
