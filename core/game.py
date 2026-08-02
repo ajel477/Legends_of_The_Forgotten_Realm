@@ -1,8 +1,20 @@
 from core.char_creation import create_character
+from core.database import GameDatabase
+from core.save_manager import SaveManager
+from core.world import World
+from core.shop import Shop
+
 
 class Game:
 
     def __init__(self):
+
+        self.database = GameDatabase()
+
+        self.world = World(self.database)
+
+        self.shop = Shop(self.database)
+        self.save_manager = SaveManager(self.database)
 
         self.player = None
         self.running = True
@@ -32,7 +44,7 @@ class Game:
 
         elif choice == "2":
 
-            print("\nContinue Game (Coming Soon)")
+            self.continue_game()
 
         elif choice == "3":
 
@@ -52,9 +64,7 @@ class Game:
 
         self.player = create_character()
 
-        self.player.display_stats()
-
-        input("\nPress Enter to continue...")
+        self.game_menu()
 
     def instructions(self):
 
@@ -67,3 +77,66 @@ class Game:
         print("Defeat the Ancient Demon King.")
 
         input("\nPress Enter to continue...")
+
+    def continue_game(self):
+
+        if not self.save_manager.save_exists():
+            print("\nNo save file found.")
+            return
+
+        player = self.save_manager.load_game()
+
+        if player is None:
+            print("\nSave file is missing or corrupted.")
+            return
+
+        self.player = player
+        self.game_menu()
+
+    def game_menu(self):
+
+        while True:
+
+            print("\n========== VILLAGE ==========\n")
+
+            print("1. Explore")
+            print("2. Shop")
+            print("3. Inventory")
+            print("4. Player Stats")
+            print("5. Save Game")
+            print("6. Return to Main Menu")
+
+            choice = input("\nChoose: ")
+
+            if choice == "1":
+
+                self.world.explore(self.player)
+
+            elif choice == "2":
+
+                self.shop.open_shop(self.player)
+
+            elif choice == "3":
+
+                self.player.show_inventory()
+
+                input("\nPress Enter...")
+
+            elif choice == "4":
+
+                self.player.display_stats()
+
+                input("\nPress Enter...")
+
+            elif choice == "5":
+
+                self.save_manager.save_game(self.player)
+                print("\nGame saved successfully!")
+
+            elif choice == "6":
+
+                break
+
+            else:
+
+                print("\nInvalid choice.")
